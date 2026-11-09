@@ -1,0 +1,16 @@
+### PASSO 1: Criar os 3 depósitos do cliente (750 dias atrás, 200 dias atrás e 12 dias atrás)
+# Clique no Play aqui primeiro! Ele já salva os 3 lotes no banco e consulta o BACEN!
+POST http://localhost:8080/api/v1/cdb/popular-simulacao
+Accept: application/json
+
+### GET request to example server
+GET localhost:8080/api/v1/cdb/carteira
+
+###
+
+### GET request to example server
+GET localhost:8080/api/v1/cdb/simular?valor=2000.00
+
+###
+GET localhost:8080/api/v1/cdb/simular?valor=15000.00
+Accept: application/json
