@@ -27,8 +27,8 @@ public class ResgateCdbService {
         this.calculadoraImpostoService = calculadoraImpostoService;
     }
 
-    public List<ResumoLoteDTO> listarCarteiraDetalhada(){
-        List<LoteCdb> lotes = loteCdbService.findByResgatadoFalse();
+    public List<ResumoLoteDTO> listarCarteiraDetalhada(Long clienteId){
+        List<LoteCdb> lotes = loteCdbService.findByResgatadoFalse(clienteId);
         List<ResumoLoteDTO> resumos = new ArrayList<>();
 
         for (LoteCdb lote : lotes) {
@@ -39,12 +39,12 @@ public class ResgateCdbService {
         return resumos;
     }
 
-    public ResultadoSimulacaoDTO simularResgate(BigDecimal valorDesejado){
+    public ResultadoSimulacaoDTO simularResgate(BigDecimal valorDesejado, Long clienteId){
         if(valorDesejado == null || valorDesejado.compareTo(BigDecimal.ZERO) <= 0){
             throw new IllegalArgumentException("Valor de resgate inválido.");
         }
 
-        List<ResumoLoteDTO> carteira = listarCarteiraDetalhada();
+        List<ResumoLoteDTO> carteira = listarCarteiraDetalhada(clienteId);
 
         carteira.sort(Comparator.comparing(ResumoLoteDTO::getImpostoTotal));
         BigDecimal impostoOtimizado = calcularImpostoDoSaque(carteira, valorDesejado);

@@ -12,7 +12,7 @@ public class LoteCdb {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private Long clienteId;
     private BigDecimal valorAplicado;
     private LocalDateTime dataAplicacao;
     private BigDecimal percentualCdi;
@@ -21,8 +21,9 @@ public class LoteCdb {
     public LoteCdb() {
     }
 
-    public LoteCdb(Long id, BigDecimal valorAplicado, LocalDateTime dataAplicacao, BigDecimal percentualCdi, boolean resgatado) {
+    public LoteCdb(Long id, Long clienteId, BigDecimal valorAplicado, LocalDateTime dataAplicacao, BigDecimal percentualCdi, boolean resgatado) {
         this.id = id;
+        this.clienteId = clienteId;
         this.valorAplicado = valorAplicado;
         this.dataAplicacao = dataAplicacao;
         this.percentualCdi = percentualCdi;
@@ -35,6 +36,14 @@ public class LoteCdb {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getClienteId() {
+        return clienteId;
+    }
+
+    public void setClienteId(Long clienteId) {
+        this.clienteId = clienteId;
     }
 
     public BigDecimal getValorAplicado() {

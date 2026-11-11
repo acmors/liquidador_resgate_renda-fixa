@@ -44,3 +44,15 @@ target/
 *.log
 .DS_Store
 Thumbs.db
+
+# Node / NestJS / TypeScript (auth-service e front-end)
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+
+# Variáveis de ambiente e segredos (NUNCA subir pro GitHub)
+.env
+**/.env
+.env.*
+**/.env.*

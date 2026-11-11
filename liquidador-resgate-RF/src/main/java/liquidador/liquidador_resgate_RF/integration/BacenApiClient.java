@@ -44,12 +44,12 @@ public class BacenApiClient {
     }
 
     private void validarData(LocalDate dataInicial, LocalDate dataFinal){
-        if (dataInicial.isAfter(dataFinal)){
-            throw new IllegalArgumentException("A data inicial não pode ser posterior a data final.");
-        }
-
         if(dataInicial == null || dataFinal == null){
             throw new IllegalArgumentException("As datas não podem ser nulas.");
+        }
+
+        if (dataInicial.isAfter(dataFinal)){
+            throw new IllegalArgumentException("A data inicial não pode ser posterior a data final.");
         }
     }
 }

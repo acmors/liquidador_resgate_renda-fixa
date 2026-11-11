@@ -14,3 +14,22 @@ GET localhost:8080/api/v1/cdb/simular?valor=2000.00
 ###
 GET localhost:8080/api/v1/cdb/simular?valor=15000.00
 Accept: application/json
+
+### 1. Criar conta no Microserviço NestJS (Porta 3001)
+POST http://localhost:3001/auth/cadastro
+Content-Type: application/json
+
+{
+  "nome": "Mateus",
+  "email": "mateus@banco.com",
+  "senha": "1234567891"
+}
+
+### 2. Fazer Login no NestJS e receber o Token JWT + clientId!
+POST http://localhost:3001/auth/login
+Content-Type: application/json
+
+{
+  "email": "mateus@banco.com",
+  "senha": "1234567891"
+}

@@ -24,31 +24,25 @@ public class CdbController {
         this.resgateCdbService = resgateCdbService;
     }
 
-    @GetMapping("/carteira")
-    public List<ResumoLoteDTO> listarCarteira(){
-        return resgateCdbService.listarCarteiraDetalhada();
+    @GetMapping("/carteira/{clienteId}")
+    public List<ResumoLoteDTO> listarCarteira(@PathVariable Long clienteId){
+        return resgateCdbService.listarCarteiraDetalhada(clienteId);
     }
 
-    @GetMapping("/simular")
-    public ResultadoSimulacaoDTO simularResgate(@RequestParam BigDecimal valor) {
-        return resgateCdbService.simularResgate(valor);
+    @GetMapping("/simular/{clienteId}")
+    public ResultadoSimulacaoDTO simularResgate(@RequestParam BigDecimal valor, @PathVariable Long clienteId) {
+        return resgateCdbService.simularResgate(valor, clienteId);
     }
 
-    @PostMapping("/aportes")
+    @PostMapping("/aportes/{clienteId}")
     public LoteCdb criarAporte(
             @RequestParam BigDecimal valor,
             @RequestParam int diasAtras,
-            @RequestParam(defaultValue = "110") BigDecimal percentualCdi
+            @RequestParam(defaultValue = "110") BigDecimal percentualCdi,
+            @PathVariable Long clienteId
     ) {
         LocalDateTime dataRetroativa = LocalDateTime.now().minusDays(diasAtras);
-        return loteCdbService.criarAporte(valor, dataRetroativa, percentualCdi);
+        return loteCdbService.criarAporte(clienteId,valor, dataRetroativa, percentualCdi);
     }
 
-    @PostMapping("/popular-simulacao")
-    public List<ResumoLoteDTO> popularSimulacao() {
-        loteCdbService.criarAporte(new BigDecimal("1000.00"), LocalDateTime.now().minusDays(750), new BigDecimal("110"));
-        loteCdbService.criarAporte(new BigDecimal("1500.00"), LocalDateTime.now().minusDays(200), new BigDecimal("110"));
-        loteCdbService.criarAporte(new BigDecimal("2000.00"), LocalDateTime.now().minusDays(12), new BigDecimal("110"));
-        return resgateCdbService.listarCarteiraDetalhada();
-    }
 }

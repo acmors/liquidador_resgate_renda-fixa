@@ -19,10 +19,11 @@ public class LoteCdbService {
     }
 
     @Transactional
-    public LoteCdb criarAporte(BigDecimal valor, LocalDateTime dataAplicacao, BigDecimal percentualCdi) {
+    public LoteCdb criarAporte(Long clienteId, BigDecimal valor, LocalDateTime dataAplicacao, BigDecimal percentualCdi) {
         validarNovoAporte(valor, dataAplicacao, percentualCdi);
 
         LoteCdb loteCdb = new LoteCdb();
+        loteCdb.setClienteId(clienteId);
         loteCdb.setResgatado(false);
         loteCdb.setDataAplicacao(dataAplicacao);
         loteCdb.setPercentualCdi(percentualCdi);
@@ -31,12 +32,12 @@ public class LoteCdbService {
     }
 
     @Transactional(readOnly = true)
-    public List<LoteCdb> findByResgatadoFalse() {
-        return loteCdbRepository.findByResgatadoFalse();
+    public List<LoteCdb> findByResgatadoFalse(Long clienteId) {
+        return loteCdbRepository.findByClienteIdAndResgatadoFalse(clienteId);
     }
 
     private void validarNovoAporte(BigDecimal valor, LocalDateTime dataAplicacao, BigDecimal percentualCdi){
-        if(valor == null || valor.compareTo(BigDecimal.ONE) < 1){
+        if(valor == null || valor.compareTo(BigDecimal.ONE) < 0){
             throw new IllegalArgumentException("O valor mínimo para aporte é R$1,00");
         }
 
