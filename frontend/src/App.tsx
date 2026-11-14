@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { TelaLogin } from './TelaLogin';
 import type { ResultadoSimulacao, ResumoLote, UsuarioLogado } from './types';
 
-const JAVA_API = import.meta.env.VITE_JAVA_API_URL || 'http://localhost:8080/api/v1/cdb';
+const JAVA_API = import.meta.env.VITE_JAVA_API_URL || '/api/v1/cdb';
 
 export default function App() {
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);

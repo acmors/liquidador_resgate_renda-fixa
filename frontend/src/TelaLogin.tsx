@@ -9,7 +9,7 @@ type EtapaTela = 'LOGIN' | 'CADASTRO' | 'ESQUECI_SENHA' | 'REDEFINIR_SENHA';
 
 export function TelaLogin({ aoLogar }: Props) {
 
-    const AUTH_API = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:3001';
+    const AUTH_API = import.meta.env.VITE_AUTH_API_URL || '';
 
     const [etapa, setEtapa] = useState<EtapaTela>('LOGIN');
 
