@@ -31,8 +31,8 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             EMAIL_USER=${{ secrets.EMAIL_USER }}
             EMAIL_PASS=${{ secrets.EMAIL_PASS }}
-            VITE_AUTH_API_URL=http://${{ secrets.VPS_IP }}:3001
-            VITE_JAVA_API_URL=http://${{ secrets.VPS_IP }}:8080/api/v1/cdb
+            VITE_AUTH_API_URL=
+            VITE_JAVA_API_URL=/api/v1/cdb
             EOF
 
             docker compose down
