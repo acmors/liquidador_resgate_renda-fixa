@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import type { UsuarioLogado } from './types';
 
 interface Props {
@@ -27,7 +27,17 @@ export function TelaLogin({ aoLogar }: Props) {
         setErro('');
         setSucesso('');
         setEtapa(novaEtapa);
+
+        if (novaEtapa === 'LOGIN') window.history.pushState({}, '', '/login');
+        if (novaEtapa === 'CADASTRO') window.history.pushState({}, '', '/criar-conta');
+        if (novaEtapa === 'ESQUECI_SENHA' || novaEtapa === 'REDEFINIR_SENHA') {
+            window.history.pushState({}, '', '/recuperar-senha');
+        }
     }
+
+    useEffect(() => {
+        window.history.pushState({}, '', '/login');
+    }, []);
 
     async function enviarFormulario(e: React.FormEvent) {
         e.preventDefault();

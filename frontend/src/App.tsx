@@ -118,7 +118,7 @@ export default function App() {
               </div>
               <div>
                 <h1 className="text-lg font-bold leading-tight">Olá, {usuario.nome}</h1>
-                <p className="text-xs text-blue-200">Conta Investimento #{usuario.clientId}</p>
+                <p className="text-xs text-blue-200">Conta Digital</p>
               </div>
             </div>
 
