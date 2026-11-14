@@ -19,7 +19,10 @@ export class AuthService {
       throw new BadRequestException('Nome, e-mail e senha são obrigatórios.');
     }
 
-    const emailExiste = this.usuarios.find((e) => e.email === dados.email);
+    const emailValidado = this.validarEmail(dados.email);
+    this.validarSenhaForte(dados.senha);
+
+    const emailExiste = this.usuarios.find((e) => e.email === emailValidado);
     if (emailExiste) {
       throw new BadRequestException('E-mail já cadastrado.');
     }
@@ -29,7 +32,7 @@ export class AuthService {
     const novoUsuario: Usuario = {
       id: this.proximoId++,
       nome: dados.nome,
-      email: dados.email,
+      email: emailValidado,
       senhaHash: senhaCriptografada,
     };
 
@@ -43,8 +46,9 @@ export class AuthService {
   }
 
   async login(dados: LoginDTO): Promise<RespostaLoginDTO> {
+    const emailValidado = dados.email ? dados.email.trim().toLowerCase() : '';
 
-    const usuario = this.usuarios.find((e) => e.email === dados.email);
+    const usuario = this.usuarios.find((e) => e.email === emailValidado);
     if (!usuario) {
       throw new NotFoundException("Usuário não encontrado")
     }
@@ -91,6 +95,7 @@ export class AuthService {
       throw new BadRequestException('Este código já expirou. Solicite um novo.',);
     }
 
+    this.validarSenhaForte(dados.novaSenha);
     const novaSenha = await bcrypt.hash(dados.novaSenha, 10);
 
     usuario.senhaHash = novaSenha
@@ -120,5 +125,54 @@ export class AuthService {
         <p><em>Esse código expira em 15 minutos.</em></p>
         `,
     });
+  }
+
+  //metodos para validações de senha forte e email
+
+  private validarEmail(email: string) :string{
+    const emailLimpo = email ? email.trim().toLowerCase() : '';
+    const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if(!regexEmail.test(email)) {
+      throw new BadRequestException('Formato de e-mail inválido.');
+    }
+
+    return emailLimpo;
+  }
+
+  private validarSenhaForte(senha: string): void{
+    if(!senha || senha.length < 8) {
+      throw new BadRequestException('Senha deve conter no mínimo 8 caracteres.');
+    }
+
+    const temMaiuscula = /[A-Z]/.test(senha);
+    const temMinuscula = /[a-z]/.test(senha);
+    const temNumero = /[0-9]/.test(senha);
+    const temEspecial = /[@$!%*?&#^()_+\-=\[\]{}|;:,.<>]/.test(senha);
+
+    if (!temMaiuscula || !temMinuscula || !temNumero || !temEspecial) {
+      throw new BadRequestException(
+        'A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial (@$!%*?&).',
+      );
+    }
+
+    if (/(.)\1\1/.test(senha)) {
+      throw new BadRequestException(
+        'A senha não pode conter 3 ou mais caracteres repetidos em sequência (ex: 111, aaa).',
+      );
+    }
+
+    const sequenciasProibidas = [
+      '012', '123', '234', '345',
+      '456', '567', '678', '789',
+      '987', '876', '765', '654',
+      '543', '432', '321', '210',
+    ];
+
+    for(const seq of sequenciasProibidas) {
+      if(senha.includes(seq)){
+        throw new BadRequestException("A senha não pode conter sequência numéricas obvias")
+      }
+    }
   }
 }
