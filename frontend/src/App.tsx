@@ -21,6 +21,7 @@ export default function App() {
 
   useEffect(() => {
     if (usuario) {
+      window.history.pushState({}, '', '/home');
       carregarCarteira();
     }
   }, [usuario]);
@@ -133,6 +134,7 @@ export default function App() {
               <button
                   type="button"
                   onClick={() => {
+                    window.history.pushState({}, '', '/login');
                     setUsuario(null);
                     setCarteira([]);
                     setSimulacao(null);
