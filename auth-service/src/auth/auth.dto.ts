@@ -3,6 +3,8 @@ export interface Usuario{
   nome: string;
   email: string;
   senhaHash: string;
+  codigoVerificacao?: string;
+  validadeCodigo?: Date;
 }
 
 export interface CadastroDTO{
@@ -21,4 +23,14 @@ export interface RespostaLoginDTO{
   clientId: number;
   nome: string;
   email: string;
+}
+
+export interface EsqueciSenhaDTO{
+  email: string;
+}
+
+export interface RedefinirSenhaDTO{
+  email: string;
+  codigo: String;
+  novaSenha: string;
 }

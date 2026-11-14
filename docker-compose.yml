@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: cdb-auth-service
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - JWT_SECRET=${JWT_SECRET}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+
+  cdb-core:
+    build: ./liquidador-resgate-RF
+    container_name: cdb-core-service
+    restart: always
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_AUTH_API_URL=${VITE_AUTH_API_URL}
+        - VITE_JAVA_API_URL=${VITE_JAVA_API_URL}
+    container_name: cdb-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - cdb-core

@@ -15,4 +15,14 @@ export class AuthController {
   async login(@Body() dados: authDto.LoginDTO) {
     return this.authService.login(dados);
   }
+
+  @Post('esqueci-senha')
+  async esqueciSenha(@Body() dados: authDto.EsqueciSenhaDTO) {
+    return this.authService.solicitarRecuperacaoSenha(dados);
+  }
+
+  @Post('redefinir-senha')
+  async redefinirSenha(@Body() dados: authDto.RedefinirSenhaDTO) {
+    return this.authService.redefinirSenha(dados);
+  }
 }
