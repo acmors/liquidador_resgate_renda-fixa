@@ -14,7 +14,7 @@ public class JwtService {
 
     private final SecretKey secretKey;
 
-    public JwtService(@Value("${jwt.secret:}") String secretKey) {
+    public JwtService(@Value("${jwt.secret}") String secretKey) {
         this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -25,7 +25,7 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
 
-        Number clienteIdNumber = claims.get("clienteId", Number.class);
+        Number clienteIdNumber = claims.get("clientId", Number.class);
         if(clienteIdNumber == null){
             throw new IllegalArgumentException("Token invalido: clienteId ausente");
         }

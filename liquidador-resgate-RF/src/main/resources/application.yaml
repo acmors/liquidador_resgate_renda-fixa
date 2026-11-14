@@ -1,3 +1,6 @@
 spring:
   application:
     name: liquidador-resgate-RF
+
+jwt:
+  secret: ${JWT_SECRET}
