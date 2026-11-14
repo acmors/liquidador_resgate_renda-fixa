@@ -35,7 +35,11 @@ export default function App() {
     setCarregando(true);
     setErro('');
     try {
-      const resp = await fetch(`${JAVA_API}/carteira/${usuario.clientId}`);
+      const resp = await fetch(`${JAVA_API}/carteira`,
+          {
+            headers: {'Authorization': `Bearer ${usuario.token}`}
+          });
+
       if (!resp.ok) throw new Error('Não foi possível consultar a custódia.');
       const dados: ResumoLote[] = await resp.json();
       setCarteira(dados);
@@ -52,11 +56,18 @@ export default function App() {
     setCarregando(true);
     setErro('');
     try {
-      const url = `${JAVA_API}/aportes/${usuario.clientId}?valor=${valorAporte}&diasAtras=${diasAtras}&percentualCdi=${percentualCdi}`;
-      const resp = await fetch(url, { method: 'POST' });
+      const url = `${JAVA_API}/aportes?valor=${valorAporte}&diasAtras=${diasAtras}&percentualCdi=${percentualCdi}`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${usuario.token}`
+        }
+      });
+
       if (!resp.ok) throw new Error('Verifique os dados informados (valor mínimo R$ 1,00).');
       await carregarCarteira();
       setSimulacao(null);
+
     } catch (e: any) {
       setErro(e.message);
     } finally {
@@ -69,9 +80,10 @@ export default function App() {
     setCarregando(true);
     setErro('');
     try {
-      await fetch(`${JAVA_API}/aportes/${usuario.clientId}?valor=1000&diasAtras=750&percentualCdi=110`, { method: 'POST' });
-      await fetch(`${JAVA_API}/aportes/${usuario.clientId}?valor=1500&diasAtras=200&percentualCdi=110`, { method: 'POST' });
-      await fetch(`${JAVA_API}/aportes/${usuario.clientId}?valor=2000&diasAtras=12&percentualCdi=110`, { method: 'POST' });
+      const headers = { 'Authorization': `Bearer ${usuario.token}` };
+      await fetch(`${JAVA_API}/aportes?valor=1000&diasAtras=750&percentualCdi=110`, { method: 'POST', headers });
+      await fetch(`${JAVA_API}/aportes?valor=1500&diasAtras=200&percentualCdi=110`, { method: 'POST', headers });
+      await fetch(`${JAVA_API}/aportes?valor=2000&diasAtras=12&percentualCdi=110`, { method: 'POST', headers });
       await carregarCarteira();
     } catch {
       setErro('Não foi possível gerar os aportes de exemplo.');
@@ -86,12 +98,17 @@ export default function App() {
     setCarregando(true);
     setErro('');
     try {
-      const resp = await fetch(`${JAVA_API}/simular/${usuario.clientId}?valor=${valorResgate}`);
+      const resp = await fetch(`${JAVA_API}/simular?valor=${valorResgate}`, {
+        headers: {
+          'Authorization': `Bearer ${usuario.token}`
+        }
+      });
       if (!resp.ok) {
         throw new Error('Saldo líquido insuficiente para o valor solicitado.');
       }
       const dados: ResultadoSimulacao = await resp.json();
       setSimulacao(dados);
+      
     } catch (e: any) {
       setErro(e.message);
       setSimulacao(null);

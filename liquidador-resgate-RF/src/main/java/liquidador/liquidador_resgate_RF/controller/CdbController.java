@@ -24,22 +24,22 @@ public class CdbController {
         this.resgateCdbService = resgateCdbService;
     }
 
-    @GetMapping("/carteira/{clienteId}")
-    public List<ResumoLoteDTO> listarCarteira(@PathVariable Long clienteId){
+    @GetMapping("/carteira")
+    public List<ResumoLoteDTO> listarCarteira(@RequestAttribute("clienteIdAutenticado") Long clienteId){
         return resgateCdbService.listarCarteiraDetalhada(clienteId);
     }
 
-    @GetMapping("/simular/{clienteId}")
-    public ResultadoSimulacaoDTO simularResgate(@RequestParam BigDecimal valor, @PathVariable Long clienteId) {
+    @GetMapping("/simular")
+    public ResultadoSimulacaoDTO simularResgate(@RequestParam BigDecimal valor, @RequestAttribute("clienteIdAutenticado") Long clienteId) {
         return resgateCdbService.simularResgate(valor, clienteId);
     }
 
-    @PostMapping("/aportes/{clienteId}")
+    @PostMapping("/aportes")
     public LoteCdb criarAporte(
             @RequestParam BigDecimal valor,
             @RequestParam int diasAtras,
             @RequestParam(defaultValue = "110") BigDecimal percentualCdi,
-            @PathVariable Long clienteId
+            @RequestAttribute("clienteIdAutenticado") Long clienteId
     ) {
         LocalDateTime dataRetroativa = LocalDateTime.now().minusDays(diasAtras);
         return loteCdbService.criarAporte(clienteId,valor, dataRetroativa, percentualCdi);
