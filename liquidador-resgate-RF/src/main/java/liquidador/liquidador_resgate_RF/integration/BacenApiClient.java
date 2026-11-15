@@ -1,6 +1,9 @@
 package liquidador.liquidador_resgate_RF.integration;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -21,6 +24,7 @@ public class BacenApiClient {
                 .build();
     }
 
+    @Cacheable("taxasCdi")
     public List<TaxaBacenResponse> buscarTaxaCdi(LocalDate dataInicial, LocalDate dataFinal){
         validarData(dataInicial, dataFinal);
 
@@ -51,5 +55,11 @@ public class BacenApiClient {
         if (dataInicial.isAfter(dataFinal)){
             throw new IllegalArgumentException("A data inicial não pode ser posterior a data final.");
         }
+    }
+
+    @Scheduled(fixedRate = 86400000)
+    @CacheEvict(value = "taxasCdi", allEntries = true)
+    public void limparCacheCdiDiario(){
+        System.out.println("Cache de taxa CDI renovado.");
     }
 }
