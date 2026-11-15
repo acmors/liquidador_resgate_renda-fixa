@@ -7,12 +7,54 @@ import { CadastroDTO, LoginDTO, Usuario, RespostaLoginDTO, EsqueciSenhaDTO, Rede
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import * as nodemailer from 'nodemailer';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const DATA_DIR = path.resolve(process.env.DATA_DIR || './data');
+const DATA_FILE = path.join(DATA_DIR, 'usuarios.json');
+
 
 @Injectable()
 export class AuthService {
   private usuarios: Usuario[] = [];
   private proximoId: number = 1;
   private readonly segredoJwt: string = process.env.JWT_SECRET as string;
+
+  constructor() {
+    this.carregarUsuarios();
+  }
+
+  private carregarUsuarios() {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      if (fs.existsSync(DATA_FILE)) {
+        const conteudo = fs.readFileSync(DATA_FILE, 'utf-8');
+        this.usuarios = JSON.parse(conteudo);
+        if (this.usuarios.length > 0) {
+          this.proximoId = Math.max(...this.usuarios.map((u) => u.id)) + 1;
+        }
+      }
+    } catch (e) {
+      console.error('Erro ao carregar usuarios persistidos:', e);
+    }
+  }
+
+  private salvarUsuarios() {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      fs.writeFileSync(
+        DATA_FILE,
+        JSON.stringify(this.usuarios, null, 2),
+        'utf-8',
+      );
+    } catch (e) {
+      console.error('Erro ao salvar usuarios:', e);
+    }
+  }
 
   async cadastrarUsuario(dados: CadastroDTO) {
     if (!dados.nome || !dados.email || !dados.senha) {
@@ -37,6 +79,7 @@ export class AuthService {
     };
 
     this.usuarios.push(novoUsuario);
+    this.salvarUsuarios();
 
     return {
       clientId: novoUsuario.id,
@@ -50,16 +93,20 @@ export class AuthService {
 
     const usuario = this.usuarios.find((e) => e.email === emailValidado);
     if (!usuario) {
-      throw new NotFoundException("Usuário não encontrado")
+      throw new NotFoundException('Usuário não encontrado');
     }
 
     //essa bagaça compara a senha digitada no login com a senha armazenada no banco de dados (ambas criptografadas
     const senhaValida = await bcrypt.compare(dados.senha, usuario.senhaHash);
-    if(!senhaValida) {
-      throw new UnauthorizedException("E-mail ou senha incorretos.")
+    if (!senhaValida) {
+      throw new UnauthorizedException('E-mail ou senha incorretos.');
     }
 
-    const token = jwt.sign({ clientId: usuario.id, email: usuario.email, }, this.segredoJwt, { expiresIn: '1d' });
+    const token = jwt.sign(
+      { clientId: usuario.id, email: usuario.email },
+      this.segredoJwt,
+      { expiresIn: '1d' },
+    );
 
     return {
       token: token,
@@ -69,10 +116,10 @@ export class AuthService {
     };
   }
 
-  async solicitarRecuperacaoSenha(dados: EsqueciSenhaDTO){
+  async solicitarRecuperacaoSenha(dados: EsqueciSenhaDTO) {
     const usuario = this.usuarios.find((e) => e.email === dados.email);
     if (!usuario) {
-      throw new NotFoundException("Nenhum usuário encontrado com este e-mail");
+      throw new NotFoundException('Nenhum usuário encontrado com este e-mail');
     }
 
     const codigoGerado = Math.floor(100000 + Math.random() * 900000).toString();
@@ -92,21 +139,23 @@ export class AuthService {
     }
 
     if (!usuario.validadeCodigo || new Date() > usuario.validadeCodigo) {
-      throw new BadRequestException('Este código já expirou. Solicite um novo.',);
+      throw new BadRequestException(
+        'Este código já expirou. Solicite um novo.',
+      );
     }
 
     this.validarSenhaForte(dados.novaSenha);
     const novaSenha = await bcrypt.hash(dados.novaSenha, 10);
 
-    usuario.senhaHash = novaSenha
+    usuario.senhaHash = novaSenha;
     usuario.codigoVerificacao = undefined;
     usuario.validadeCodigo = undefined;
+    this.salvarUsuarios();
 
-    return {message: 'Senha alterada com sucesso!'};
-
+    return { message: 'Senha alterada com sucesso!' };
   }
 
-  private async enviarEmail(emailDesino: string, nome: string, codigo: string){
+  private async enviarEmail(emailDesino: string, nome: string, codigo: string) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -129,20 +178,22 @@ export class AuthService {
 
   //metodos para validações de senha forte e email
 
-  private validarEmail(email: string) :string{
+  private validarEmail(email: string): string {
     const emailLimpo = email ? email.trim().toLowerCase() : '';
     const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    if(!regexEmail.test(email)) {
+    if (!regexEmail.test(email)) {
       throw new BadRequestException('Formato de e-mail inválido.');
     }
 
     return emailLimpo;
   }
 
-  private validarSenhaForte(senha: string): void{
-    if(!senha || senha.length < 8) {
-      throw new BadRequestException('Senha deve conter no mínimo 8 caracteres.');
+  private validarSenhaForte(senha: string): void {
+    if (!senha || senha.length < 8) {
+      throw new BadRequestException(
+        'Senha deve conter no mínimo 8 caracteres.',
+      );
     }
 
     const temMaiuscula = /[A-Z]/.test(senha);
@@ -163,15 +214,29 @@ export class AuthService {
     }
 
     const sequenciasProibidas = [
-      '012', '123', '234', '345',
-      '456', '567', '678', '789',
-      '987', '876', '765', '654',
-      '543', '432', '321', '210',
+      '012',
+      '123',
+      '234',
+      '345',
+      '456',
+      '567',
+      '678',
+      '789',
+      '987',
+      '876',
+      '765',
+      '654',
+      '543',
+      '432',
+      '321',
+      '210',
     ];
 
-    for(const seq of sequenciasProibidas) {
-      if(senha.includes(seq)){
-        throw new BadRequestException("A senha não pode conter sequência numéricas obvias")
+    for (const seq of sequenciasProibidas) {
+      if (senha.includes(seq)) {
+        throw new BadRequestException(
+          'A senha não pode conter sequência numéricas obvias',
+        );
       }
     }
   }
