@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cdb-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: cdb_database
+      POSTGRES_USER: ${DB_USER:postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   auth-service:
     build: ./auth-service
     container_name: cdb-auth-service
@@ -21,6 +32,11 @@ services:
       - "8080:8080"
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_PORT}/cdb_database
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:postgres}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - postgres
 
   frontend:
     build:
@@ -38,3 +54,6 @@ services:
     depends_on:
       - auth-service
       - cdb-core
+
+volumes:
+  postgres_data:

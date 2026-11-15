@@ -27,10 +27,11 @@ jobs:
             git fetch --all
             git reset --hard origin/main
 
-            cat <<EOF > .env
+                cat <<EOF > .env
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             EMAIL_USER=${{ secrets.EMAIL_USER }}
             EMAIL_PASS=${{ secrets.EMAIL_PASS }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             VITE_AUTH_API_URL=
             VITE_JAVA_API_URL=/api/v1/cdb
             EOF
